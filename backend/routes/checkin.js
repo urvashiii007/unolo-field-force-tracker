@@ -62,8 +62,13 @@ const [activeCheckins] = await pool.execute(
             });
         }
 
+
+
+        // FIX: Updated column names from lat/lng to latitude/longitude
+// to match the actual SQLite schema defined in init-db.js.
+// This prevents schema mismatch errors during check-in creation.
         const [result] = await pool.execute(
-            `INSERT INTO checkins (employee_id, client_id, lat, lng, notes, status)
+            `INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)
              VALUES (?, ?, ?, ?, ?, 'checked_in')`,
             [req.user.id, client_id, latitude, longitude, notes || null]
         );
