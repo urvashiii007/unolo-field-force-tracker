@@ -26,9 +26,11 @@ router.post('/', authenticateToken, async (req, res) => {
     try {
         const { client_id, latitude, longitude, notes } = req.body;
 
-        if (!client_id) {
-            return res.status(200).json({ success: false, message: 'Client ID is required' });
-        }
+       // FIX: Validation error should return 400 Bad Request
+if (!client_id) {
+    return res.status(400).json({ success: false, message: 'Client ID is required' });
+}
+
 
         // Check if employee is assigned to this client
         const [assignments] = await pool.execute(
@@ -39,12 +41,6 @@ router.post('/', authenticateToken, async (req, res) => {
         if (assignments.length === 0) {
             return res.status(403).json({ success: false, message: 'You are not assigned to this client' });
         }
-
-        // // Check for existing active check-in
-        // const [activeCheckins] = await pool.execute(
-        //     'SELECT * FROM checkins WHERE employee_id = ? AND status = "checked_in"',
-        //     [req.user.id]
-        // );
 
 
         // FIX: Use single quotes for string literals in SQLite
