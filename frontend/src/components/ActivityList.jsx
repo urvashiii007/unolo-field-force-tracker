@@ -13,11 +13,17 @@ function ActivityList({ items, filter, onItemSelect }) {
         setFilteredItems(filtered);
     }, [items, filter]);
 
+
     useEffect(() => {
-        const interval = setInterval(() => {
-            setLastUpdate(new Date());
-        }, 30000);
-    }, []);
+    const interval = setInterval(() => {
+        setLastUpdate(new Date());
+    }, 30000);
+
+    // FIX: clear interval on unmount
+    return () => clearInterval(interval);
+}, []);
+
+    
 
     const handleItemClick = (item) => {
         onItemSelect?.(item);
