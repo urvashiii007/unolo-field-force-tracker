@@ -40,11 +40,20 @@ router.post('/', authenticateToken, async (req, res) => {
             return res.status(403).json({ success: false, message: 'You are not assigned to this client' });
         }
 
-        // Check for existing active check-in
-        const [activeCheckins] = await pool.execute(
-            'SELECT * FROM checkins WHERE employee_id = ? AND status = "checked_in"',
-            [req.user.id]
-        );
+        // // Check for existing active check-in
+        // const [activeCheckins] = await pool.execute(
+        //     'SELECT * FROM checkins WHERE employee_id = ? AND status = "checked_in"',
+        //     [req.user.id]
+        // );
+
+
+        // FIX: Use single quotes for string literals in SQLite
+// Double quotes are treated as column identifiers, causing SQL errors
+const [activeCheckins] = await pool.execute(
+    "SELECT * FROM checkins WHERE employee_id = ? AND status = 'checked_in'",
+    [req.user.id]
+);
+
 
         if (activeCheckins.length > 0) {
             return res.status(400).json({ 
@@ -84,12 +93,15 @@ router.put('/checkout', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'No active check-in found' });
         }
 
-        // FIX: Replaced MySQL-specific NOW() with SQLite-compatible CURRENT_TIMESTAMP
-// SQLite does not support NOW(), so using CURRENT_TIMESTAMP prevents runtime SQL errors
+        // FIX: 
+// 1. Replaced MySQL-specific NOW() with SQLite-compatible CURRENT_TIMESTAMP
+// 2. Replaced double quotes with single quotes for string literal 'checked_out'
+//    to prevent SQLite from treating it as a column name
 await pool.execute(
-    'UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = "checked_out" WHERE id = ?',
+    "UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
     [activeCheckins[0].id]
 );
+
 
 
         res.json({ success: true, message: 'Checked out successfully' });
