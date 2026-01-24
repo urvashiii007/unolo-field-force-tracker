@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 
 function History({ user }) {
-    const [checkins, setCheckins] = useState(null);
+   // FIX: Initialize checkins as an empty array instead of null
+// This prevents runtime errors when calling array methods like reduce() before API data loads
+    const [checkins, setCheckins] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [startDate, setStartDate] = useState('');
