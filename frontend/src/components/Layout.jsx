@@ -3,11 +3,16 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 function Layout({ user, onLogout }) {
     const location = useLocation();
 
-    const navItems = [
-        { path: '/dashboard', label: 'Dashboard' },
-        { path: '/checkin', label: 'Check In' },
-        { path: '/history', label: 'History' }
-    ];
+    // FIX: Navigation should be role-based.
+    // Managers should not see Check In / History links,
+    // as they cannot perform employee check-ins.
+    const navItems = user.role === 'manager'
+        ? [{ path: '/dashboard', label: 'Dashboard' }]
+        : [
+            { path: '/dashboard', label: 'Dashboard' },
+            { path: '/checkin', label: 'Check In' },
+            { path: '/history', label: 'History' }
+        ];
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -15,7 +20,10 @@ function Layout({ user, onLogout }) {
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center space-x-8">
-                        <h1 className="text-xl font-bold text-blue-600">Unolo Tracker</h1>
+                        <h1 className="text-xl font-bold text-blue-600">
+                            Unolo Tracker
+                        </h1>
+
                         <nav className="flex space-x-4">
                             {navItems.map((item) => (
                                 <Link
@@ -32,6 +40,7 @@ function Layout({ user, onLogout }) {
                             ))}
                         </nav>
                     </div>
+
                     <div className="flex items-center space-x-4">
                         <span className="text-sm text-gray-600">
                             {user.name} ({user.role})
