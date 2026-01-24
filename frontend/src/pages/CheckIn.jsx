@@ -140,25 +140,38 @@ function CheckIn({ user }) {
                 )}
             </div>
 
-            {/* Active Check-in Card */}
-            {activeCheckin && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                    <h3 className="font-semibold text-blue-800 mb-2">Active Check-in</h3>
-                    <p className="text-blue-700">
-                        You are currently checked in at <strong>{activeCheckin.client_name}</strong>
-                    </p>
-                    <p className="text-sm text-blue-600 mt-1">
-                        Since: {new Date(activeCheckin.checkin_time).toLocaleString()}
-                    </p>
-                    <button
-                        onClick={handleCheckOut}
-                        disabled={submitting}
-                        className="mt-4 bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 disabled:bg-red-400"
-                    >
-                        {submitting ? 'Processing...' : 'Check Out'}
-                    </button>
-                </div>
-            )}
+
+
+           {/* Active Check-in Card */}
+{activeCheckin && (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <h3 className="font-semibold text-blue-800 mb-2">Active Check-in</h3>
+        <p className="text-blue-700">
+            You are currently checked in at <strong>{activeCheckin.client_name}</strong>
+        </p>
+        <p className="text-sm text-blue-600 mt-1">
+            Since: {new Date(activeCheckin.checkin_time).toLocaleString()}
+        </p>
+
+        {/* FIX: Display notes entered during check-in, if available */}
+        {activeCheckin.notes && (
+            <p className="text-sm text-blue-600 mt-2">
+                <strong>Notes:</strong> {activeCheckin.notes}
+            </p>
+        )}
+
+        <button
+            onClick={handleCheckOut}
+            disabled={submitting}
+            className="mt-4 bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 disabled:bg-red-400"
+        >
+            {submitting ? 'Processing...' : 'Check Out'}
+        </button>
+    </div>
+)}
+
+
+
 
             {/* Check-in Form */}
             {!activeCheckin && (
