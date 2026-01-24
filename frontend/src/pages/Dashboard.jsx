@@ -12,7 +12,13 @@ function Dashboard({ user }) {
 
     const fetchDashboardData = async () => {
         try {
-            const endpoint = user.id === 1 ? '/dashboard/stats' : '/dashboard/employee';
+            // FIX: Use role-based check instead of hard-coded user ID
+// Manager dashboard should be determined by user role, not user.id
+const endpoint =
+    user.role === 'manager'
+        ? '/dashboard/stats'
+        : '/dashboard/employee';
+
             const response = await api.get(endpoint);
             
             if (response.data.success) {
@@ -82,7 +88,7 @@ function Dashboard({ user }) {
                                             <td className="py-3">{checkin.employee_name}</td>
                                             <td className="py-3">{checkin.client_name}</td>
                                             <td className="py-3">
-                                                {new Date(checkin.checkin_time).toLocaleTimeString()}
+                                               { new Date(checkin.checkin_time).toLocaleTimeString()}
                                             </td>
                                             <td className="py-3">
                                                 <span className={`px-2 py-1 rounded text-xs ${
