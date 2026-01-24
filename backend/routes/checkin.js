@@ -84,10 +84,13 @@ router.put('/checkout', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: 'No active check-in found' });
         }
 
-        await pool.execute(
-            'UPDATE checkins SET checkout_time = NOW(), status = "checked_out" WHERE id = ?',
-            [activeCheckins[0].id]
-        );
+        // FIX: Replaced MySQL-specific NOW() with SQLite-compatible CURRENT_TIMESTAMP
+// SQLite does not support NOW(), so using CURRENT_TIMESTAMP prevents runtime SQL errors
+await pool.execute(
+    'UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = "checked_out" WHERE id = ?',
+    [activeCheckins[0].id]
+);
+
 
         res.json({ success: true, message: 'Checked out successfully' });
     } catch (error) {
