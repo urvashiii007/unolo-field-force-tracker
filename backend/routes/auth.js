@@ -25,17 +25,29 @@ router.post('/login', async (req, res) => {
 
         const user = users[0];
         
-        const isValidPassword = bcrypt.compare(password, user.password);
-        
-        if (!isValidPassword) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
-        }
+      // FIX: bcrypt.compare is async, must be awaited
+const isValidPassword = await bcrypt.compare(password, user.password);
 
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role, name: user.name, password: user.password },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+if (!isValidPassword) {
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+}
+
+
+        // FIX 2: Do not include password in JWT
+        const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
+
+       // FIX: Never include password in JWT payload
+const token = jwt.sign(
+    {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name
+    },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+);
+
 
         res.json({
             success: true,
@@ -65,7 +77,10 @@ router.get('/me', async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // FIX: Use same JWT secret fallback as login route
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
+const decoded = jwt.verify(token, JWT_SECRET);
+
         const [users] = await pool.execute(
             'SELECT id, name, email, role FROM users WHERE id = ?',
             [decoded.id]
