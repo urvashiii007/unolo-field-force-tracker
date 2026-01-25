@@ -20,13 +20,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        const status = error.response?.status;
+
+        // FIX: Avoid redirect loop by checking current route
+        if ((status === 401 || status === 403) && window.location.pathname !== '/login') {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
         }
+
         return Promise.reject(error);
     }
 );
+
 
 export default api;
