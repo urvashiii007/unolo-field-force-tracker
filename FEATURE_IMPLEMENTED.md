@@ -186,14 +186,18 @@ Employees cannot access this API even through direct requests.
 
 #### 4. Efficient SQL Aggregation Logic
 
-- Implemented a **single optimized SQL query** (no N+1 queries).
-- Used `LEFT JOIN` to ensure employees with zero check-ins still appear.
-- Calculated working hours using SQLite-compatible logic:
+- Implemented a **single optimized SQL query** (no N+1 queries)
+- Used `LEFT JOIN` to ensure employees with zero check-ins still appear
+- Calculated working hours using SQLite-compatible logic
+
+**Working hours calculation:**
 
 ```sql
 (julianday(checkout_time) - julianday(checkin_time)) * 24
-- Total working hours are rounded to 2 decimal places for accuracy.
+```
+Total working hours are rounded to 2 decimal places for accuracy.
 
+---
 
 ### 5. Data Returned by the API
 
@@ -222,9 +226,11 @@ The reports route is registered as:
 
 ```js
 app.use('/api/reports', reportRoutes);
+```
 
 This exposes the Daily Summary API to the frontend application.
 
+--- 
 
 ## Frontend Implementation
 
@@ -259,6 +265,7 @@ A protected frontend route was added:
 
 ```jsx
 <Route path="/reports" element={<Reports />} />
+```
 
 **Important distinction:**
 
