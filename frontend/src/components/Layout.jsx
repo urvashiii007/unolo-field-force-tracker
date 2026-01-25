@@ -6,13 +6,17 @@ function Layout({ user, onLogout }) {
     // FIX: Navigation should be role-based.
     // Managers should not see Check In / History links,
     // as they cannot perform employee check-ins.
-    const navItems = user.role === 'manager'
-        ? [{ path: '/dashboard', label: 'Dashboard' }]
+    const navItems =
+    user.role === 'manager'
+        ? [
+            { path: '/dashboard', label: 'Dashboard' },
+            { path: '/reports', label: 'Reports' }  // - Manager: Dashboard, Reports
+          ]
         : [
             { path: '/dashboard', label: 'Dashboard' },
             { path: '/checkin', label: 'Check In' },
             { path: '/history', label: 'History' }
-        ];
+          ];
 
     return (
         <div className="min-h-screen bg-gray-100">

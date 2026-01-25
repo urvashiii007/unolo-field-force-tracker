@@ -6,6 +6,10 @@ import CheckIn from './pages/CheckIn';
 import History from './pages/History';
 import Layout from './components/Layout';
 
+// FIX: Import Reports page for Feature B (Daily Summary Report)
+import Reports from './pages/Reports';
+
+
 function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -50,17 +54,23 @@ function App() {
                         user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
                     } 
                 />
+
                 <Route 
-                    path="/" 
-                    element={
-                        user ? <Layout user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
-                    }
-                >
-                    <Route index element={<Navigate to="/dashboard" />} />
-                    <Route path="dashboard" element={<Dashboard user={user} />} />
-                    <Route path="checkin" element={<CheckIn user={user} />} />
-                    <Route path="history" element={<History user={user} />} />
-                </Route>
+    path="/" 
+    element={
+        user ? <Layout user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+    }
+>
+    <Route index element={<Navigate to="/dashboard" />} />
+    <Route path="dashboard" element={<Dashboard user={user} />} />
+    <Route path="checkin" element={<CheckIn user={user} />} />
+    <Route path="history" element={<History user={user} />} />
+
+    {/* Feature B: Daily Summary Report (Manager only UI access) */}
+    <Route path="reports" element={<Reports />} />
+</Route>
+
+
             </Routes>
         </BrowserRouter>
     );
