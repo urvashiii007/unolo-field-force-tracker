@@ -17,6 +17,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+
+const reportRoutes = require('./routes/reports');
+
+// FIX: Register report routes for Feature B (Daily Summary API)
+app.use('/api/reports', reportRoutes);
+
+
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
