@@ -12,6 +12,10 @@ function CheckIn({ user }) {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    // 🔹 NEW: distance related states (Feature A)
+    const [distance, setDistance] = useState(null);
+    const [distanceWarning, setDistanceWarning] = useState(null);
+
     useEffect(() => {
         fetchData();
         getCurrentLocation();
@@ -29,6 +33,11 @@ function CheckIn({ user }) {
             }
             if (activeRes.data.success) {
                 setActiveCheckin(activeRes.data.data);
+
+                // 🔹 NEW: load distance for active check-in
+                if (activeRes.data.data?.distance_from_client !== undefined) {
+                    setDistance(activeRes.data.data.distance_from_client);
+                }
             }
         } catch (err) {
             setError('Failed to load data');
@@ -48,7 +57,6 @@ function CheckIn({ user }) {
                 },
                 (err) => {
                     console.error('Location error:', err);
-                    // Set default location (Gurugram) for testing
                     setLocation({ latitude: 28.4595, longitude: 77.0266 });
                 }
             );
@@ -56,6 +64,7 @@ function CheckIn({ user }) {
     };
 
     const handleCheckIn = async (e) => {
+        e.preventDefault();
         setError('');
         setSuccess('');
         setSubmitting(true);
@@ -72,7 +81,12 @@ function CheckIn({ user }) {
                 setSuccess('Checked in successfully!');
                 setSelectedClient('');
                 setNotes('');
-                fetchData(); // Refresh data
+
+                // 🔹 NEW: set distance & warning from backend response
+                setDistance(response.data.data.distance_from_client);
+                setDistanceWarning(response.data.data.warning || null);
+
+                fetchData();
             } else {
                 setError(response.data.message);
             }
@@ -94,6 +108,10 @@ function CheckIn({ user }) {
             if (response.data.success) {
                 setSuccess('Checked out successfully!');
                 setActiveCheckin(null);
+
+                // 🔹 NEW: clear distance data on checkout
+                setDistance(null);
+                setDistanceWarning(null);
             } else {
                 setError(response.data.message);
             }
@@ -111,8 +129,6 @@ function CheckIn({ user }) {
             </div>
         );
     }
-
-
 
     return (
         <div>
@@ -142,38 +158,55 @@ function CheckIn({ user }) {
                 )}
             </div>
 
+            {/* 🔹 NEW: Distance Display */}
+            {distance !== null && (
+                <div className="bg-white rounded-lg shadow p-4 mb-6">
+                    <p className="text-gray-700">
+                        <strong>Distance from client:</strong> {distance} km
+                    </p>
 
+                    {distanceWarning && (
+                        <p className="text-red-600 mt-1 text-sm">
+                            ⚠️ {distanceWarning}
+                        </p>
+                    )}
+                </div>
+            )}
 
-           {/* Active Check-in Card */}
-{activeCheckin && (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-        <h3 className="font-semibold text-blue-800 mb-2">Active Check-in</h3>
-        <p className="text-blue-700">
-            You are currently checked in at <strong>{activeCheckin.client_name}</strong>
-        </p>
-        <p className="text-sm text-blue-600 mt-1">
-            Since: {new Date(activeCheckin.checkin_time).toLocaleString()}
-        </p>
+            {/* Active Check-in Card */}
+            {activeCheckin && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                    <h3 className="font-semibold text-blue-800 mb-2">Active Check-in</h3>
+                    <p className="text-blue-700">
+                        You are currently checked in at <strong>{activeCheckin.client_name}</strong>
+                    </p>
+                    <p className="text-sm text-blue-600 mt-1">
+                        Since: {new Date(activeCheckin.checkin_time).toLocaleString()}
+                    </p>
 
-        {/* FIX: Display notes entered during check-in, if available */}
-        {activeCheckin.notes && (
-            <p className="text-sm text-blue-600 mt-2">
-                <strong>Notes:</strong> {activeCheckin.notes}
-            </p>
-        )}
+                    {/* 🔹 NEW: Show stored distance */}
+                    {activeCheckin.distance_from_client !== null && (
+                        <p className="text-sm text-blue-600 mt-2">
+                            <strong>Distance:</strong> {activeCheckin.distance_from_client} km
+                        </p>
+                    )}
 
-        <button
-            onClick={handleCheckOut}
-            disabled={submitting}
-            className="mt-4 bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 disabled:bg-red-400"
-        >
-            {submitting ? 'Processing...' : 'Check Out'}
-        </button>
-    </div>
-)}
+                      {/* FIX: Display notes entered during check-in, if available */}
+                    {activeCheckin.notes && (
+                        <p className="text-sm text-blue-600 mt-2">
+                            <strong>Notes:</strong> {activeCheckin.notes}
+                        </p>
+                    )}
 
-
-
+                    <button
+                        onClick={handleCheckOut}
+                        disabled={submitting}
+                        className="mt-4 bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 disabled:bg-red-400"
+                    >
+                        {submitting ? 'Processing...' : 'Check Out'}
+                    </button>
+                </div>
+            )}
 
             {/* Check-in Form */}
             {!activeCheckin && (
@@ -188,7 +221,7 @@ function CheckIn({ user }) {
                             <select
                                 value={selectedClient}
                                 onChange={(e) => setSelectedClient(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 required
                             >
                                 <option value="">Choose a client...</option>
@@ -207,7 +240,7 @@ function CheckIn({ user }) {
                             <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 rows="3"
                                 placeholder="Add any notes about this visit..."
                             />
@@ -216,7 +249,7 @@ function CheckIn({ user }) {
                         <button
                             type="submit"
                             disabled={submitting || !selectedClient || !location}
-                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400"
+                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md"
                         >
                             {submitting ? 'Checking in...' : 'Check In'}
                         </button>

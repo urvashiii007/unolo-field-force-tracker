@@ -141,6 +141,13 @@ function History({ user }) {
                                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Check-in</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Check-out</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Duration</th>
+
+                       
+                       {/* 🔹 NEW: Distance column (Feature A) */}
+                                <th className="px-4 py-3 text-left text-sm">Distance (km)</th>
+
+
+
                                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Notes</th>
                             </tr>
                         </thead>
@@ -174,6 +181,16 @@ function History({ user }) {
                                                 {duration}
                                             </span>
                                         </td>
+
+
+                                 
+                                      {/* 🔹 NEW: Distance value */}
+                                        <td className="px-4 py-3">
+                                            {checkin.distance_from_client !== null
+                                                ? checkin.distance_from_client.toFixed(2)
+                                                : '-'}
+                                        </td>
+
                                         <td className="px-4 py-3 text-sm text-gray-600">
                                             {checkin.notes || '-'}
                                         </td>
