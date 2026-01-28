@@ -163,7 +163,8 @@ To validate the system’s scalability, we analyze the expected **network** and 
 For **10,000 field agents**, each sending a location update every **30 seconds**:
 
 \[
-R_{ps} = \frac{10{,}000 \text{ agents}}{30 \text{ seconds}} \approx 333 \text{ requests/second}
+R_{ps} = \frac{10{,}000\ \text{agents}}{30\ \text{seconds}}
+\;\approx\; 333\ \text{requests per second}
 \]
 
 
@@ -172,9 +173,11 @@ R_{ps} = \frac{10{,}000 \text{ agents}}{30 \text{ seconds}} \approx 333 \text{ r
 Assuming a **standard JSON payload of 512 bytes** per request (including headers):
 
 \[
-\text{Total Bandwidth} = 333 \text{ req/s} \times 512 \text{ bytes}
-\approx 170 \text{ KB/s}
+\text{Total Bandwidth}
+= 333\ \text{req/s} \times 512\ \text{bytes}
+\;\approx\; 170\ \text{KB/s}
 \]
+
 
 ### Observation
 - This bandwidth requirement is **trivial** for even a single entry-level cloud instance.
@@ -192,8 +195,9 @@ Assume:
 Each incoming update must be broadcast to all viewers:
 
 \[
-\text{Pushes/s} = 333 \text{ updates/s} \times 100 \text{ viewers}
-= 33{,}300 \text{ events/s}
+\text{Pushes/s}
+= 333\ \text{updates/s} \times 100\ \text{viewers}
+= 33{,}300\ \text{events/s}
 \]
 
 
