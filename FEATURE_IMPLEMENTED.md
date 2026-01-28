@@ -1,3 +1,14 @@
+# Features Implemented
+
+This document describes the **key features implemented** in the Unolo Field Force Tracker
+as part of the coding assignment.
+
+
+The goal of this document is to give reviewers a **clear understanding of the functionality,
+implementation approach, and reasoning** behind each feature, rather than just showing code.
+
+
+
 ## Feature A: Real-time Distance Calculation
 
 ### Overview
