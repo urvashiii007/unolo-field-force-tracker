@@ -1,4 +1,62 @@
-### Bug: Employee dashboard crashing due to SQL syntax error (last 7 days stats)
+# Bug-1: Login intermittently failed even with correct credentials
+
+- ### Location:
+  backend/routes/auth.js (login route)
+
+- ### What was wrong:
+  The password verification used `bcrypt.compare()` without awaiting it.
+  Since `bcrypt.compare()` is asynchronous and returns a Promise, the
+  condition sometimes evaluated incorrectly, causing valid logins to fail.
+
+- ### How I fixed it:
+  Added `await` before `bcrypt.compare()` to correctly resolve the
+  password comparison result.
+
+- ### Why this fix is correct:
+  Awaiting the Promise ensures accurate password validation and removes
+  intermittent authentication failures.
+
+--- 
+
+# Bug-2: Sensitive data included in JWT payload
+
+- ### Location:
+  backend/routes/auth.js (JWT creation)
+
+- ### What was wrong:
+  The hashed user password was included inside the JWT payload, which is
+  insecure and unnecessary.
+
+- ### How I fixed it:
+  Removed the password field from the JWT payload and only included
+  required user identification fields.
+
+- ### Why this fix is correct:
+  JWTs should never contain sensitive information. This improves security
+  and follows standard authentication best practices.
+
+---
+
+# Bug-3: Auth token verification failed when environment variable was missing
+
+- ### Location:
+  backend/routes/auth.js (`GET /auth/me`)
+
+- ### What was wrong:
+  The token verification relied only on `process.env.JWT_SECRET`,
+  while the login route used a fallback secret. This caused token
+  verification to fail in environments without a `.env` file.
+
+- ### How I fixed it:
+  Used the same JWT secret fallback logic in both login and profile routes.
+
+- ### Why this fix is correct:
+  Ensures consistent token signing and verification across the application.
+
+---
+
+
+# Bug-4: Employee dashboard crashing due to SQL syntax error (last 7 days stats)
 
 - ### Location:  
   `backend/routes/dashboard.js` (Employee dashboard → weekly statistics query)
@@ -25,32 +83,7 @@
 
 ---
 
-### Bug: History page crashing due to reduce() being called on null
-
-- ### Location:  
-  `frontend/src/pages/History.jsx` (totalHours calculation)
-
-- ### What was wrong:  
-  The History component initialized the `checkins` state as `null` and immediately
-  attempted to call `.reduce()` on it to calculate total working hours.
-  During the initial render, before the API response was loaded, this caused
-  a runtime error: `Cannot read properties of null (reading 'reduce')`,
-  which crashed the History page.
-
-- ### How I fixed it:  
-  I initialized the `checkins` state as an empty array instead of `null`.
-  This ensures that array methods like `.reduce()` and `.map()` are always safe
-  to call, even before the API data is available.
-
-- ### Why this fix is correct:  
-  React components often render before asynchronous data is fetched.
-  Initializing state with a safe default value (empty array) is a standard
-  React best practice that prevents runtime errors and ensures predictable rendering.
-
----
-
-
-### Bug: Check-out API failing due to unsupported NOW() function in SQLite
+# Bug-5: Check-out API failing due to unsupported NOW() function in SQLite
 
 - ### Location:  
   `backend/routes/checkin.js` (checkout update query)
@@ -72,8 +105,7 @@
 
 ---
 
-
-### Bug: Checkout API failing due to incorrect SQL syntax in SQLite
+# Bug-6: Checkout API failing due to incorrect SQL syntax in SQLite
 
 - ### Location:  
   `backend/routes/checkin.js` (active check-in query and checkout update query)
@@ -98,7 +130,7 @@
 
 ---
 
-### Bug: Check-in failing due to mismatched latitude/longitude column names
+# Bug-7: Check-in failing due to mismatched latitude/longitude column names
 
 - ### Location:  
   `backend/routes/checkin.js` (check-in insert query)
@@ -122,8 +154,7 @@
 
 ---
 
-
-### Bug: Notes not displayed in Active Check-in view
+# Bug-8: Notes not displayed in Active Check-in view
 
 - ### Location:  
   `frontend/src/pages/CheckIn.jsx` (Active Check-in UI section)
@@ -143,64 +174,26 @@
 
 ---
 
-### Bug: Login intermittently failed even with correct credentials
+# Bug-9: Incorrect HTTP status code for validation errors in check-in API
 
 - ### Location:
-  backend/routes/auth.js (login route)
+  backend/routes/checkin.js (`POST /checkin`)
 
 - ### What was wrong:
-  The password verification used `bcrypt.compare()` without awaiting it.
-  Since `bcrypt.compare()` is asynchronous and returns a Promise, the
-  condition sometimes evaluated incorrectly, causing valid logins to fail.
+  The API returned HTTP 200 OK even when required input (client_id)
+  was missing, which is a client-side validation error.
 
 - ### How I fixed it:
-  Added `await` before `bcrypt.compare()` to correctly resolve the
-  password comparison result.
+  Updated the response to return HTTP 400 Bad Request when
+  validation fails.
 
 - ### Why this fix is correct:
-  Awaiting the Promise ensures accurate password validation and removes
-  intermittent authentication failures.
-
---- 
-
-### Bug: Sensitive data included in JWT payload
-
-- ### Location:
-  backend/routes/auth.js (JWT creation)
-
-- ### What was wrong:
-  The hashed user password was included inside the JWT payload, which is
-  insecure and unnecessary.
-
-- ### How I fixed it:
-  Removed the password field from the JWT payload and only included
-  required user identification fields.
-
-- ### Why this fix is correct:
-  JWTs should never contain sensitive information. This improves security
-  and follows standard authentication best practices.
+  Validation errors should return 4xx status codes to clearly
+  indicate client-side issues and follow REST API best practices.
 
 ---
 
-### Bug: Auth token verification failed when environment variable was missing
-
-- ### Location:
-  backend/routes/auth.js (`GET /auth/me`)
-
-- ### What was wrong:
-  The token verification relied only on `process.env.JWT_SECRET`,
-  while the login route used a fallback secret. This caused token
-  verification to fail in environments without a `.env` file.
-
-- ### How I fixed it:
-  Used the same JWT secret fallback logic in both login and profile routes.
-
-- ### Why this fix is correct:
-  Ensures consistent token signing and verification across the application.
-
----
-
-### Bug: Dashboard showed incorrect data due to hard-coded user ID check
+# Bug-10: Dashboard showed incorrect data due to hard-coded user ID check
 
 - ### Location:
   `frontend/src/pages/Dashboard.jsx`
@@ -222,26 +215,51 @@
 
 ---
 
-### Bug: Incorrect HTTP status code for validation errors in check-in API
+# Bug-11: Manager users could access employee-only navigation links
 
 - ### Location:
-  backend/routes/checkin.js (`POST /checkin`)
+  frontend/components/Layout.jsx
 
 - ### What was wrong:
-  The API returned HTTP 200 OK even when required input (client_id)
-  was missing, which is a client-side validation error.
+  The navigation menu displayed "Check In" and "History" tabs
+  for all users, including managers. Managers are not supposed
+  to perform check-ins, leading to role confusion and incorrect UX.
 
 - ### How I fixed it:
-  Updated the response to return HTTP 400 Bad Request when
-  validation fails.
+  Implemented role-based navigation logic to show only the
+  Dashboard tab for managers and full navigation for employees.
 
 - ### Why this fix is correct:
-  Validation errors should return 4xx status codes to clearly
-  indicate client-side issues and follow REST API best practices.
+  It aligns the UI with backend authorization rules, prevents
+  invalid user actions, and improves role clarity and usability.
 
 ---
 
-### Bug: Memory leak in ActivityList due to missing interval cleanup
+# Bug-12: History page crashing due to reduce() being called on null
+
+- ### Location:  
+  `frontend/src/pages/History.jsx` (totalHours calculation)
+
+- ### What was wrong:  
+  The History component initialized the `checkins` state as `null` and immediately
+  attempted to call `.reduce()` on it to calculate total working hours.
+  During the initial render, before the API response was loaded, this caused
+  a runtime error: `Cannot read properties of null (reading 'reduce')`,
+  which crashed the History page.
+
+- ### How I fixed it:  
+  I initialized the `checkins` state as an empty array instead of `null`.
+  This ensures that array methods like `.reduce()` and `.map()` are always safe
+  to call, even before the API data is available.
+
+- ### Why this fix is correct:  
+  React components often render before asynchronous data is fetched.
+  Initializing state with a safe default value (empty array) is a standard
+  React best practice that prevents runtime errors and ensures predictable rendering.
+
+---
+
+# Bug-13: Memory leak in ActivityList due to missing interval cleanup
 
 - ### Location:
   frontend/components/ActivityList.jsx
@@ -263,7 +281,7 @@
 
 ---
 
-### Bug: Incorrect hook usage and stale state in Counter component
+# Bug-14: Incorrect hook usage and stale state in Counter component
 
 - ### Location:
   frontend/components/Counter.jsx
@@ -284,27 +302,7 @@
 
 ---
 
-### Bug: Manager users could access employee-only navigation links
-
-- ### Location:
-  frontend/components/Layout.jsx
-
-- ### What was wrong:
-  The navigation menu displayed "Check In" and "History" tabs
-  for all users, including managers. Managers are not supposed
-  to perform check-ins, leading to role confusion and incorrect UX.
-
-- ### How I fixed it:
-  Implemented role-based navigation logic to show only the
-  Dashboard tab for managers and full navigation for employees.
-
-- ### Why this fix is correct:
-  It aligns the UI with backend authorization rules, prevents
-  invalid user actions, and improves role clarity and usability.
-
----
-
-### Bug: Redirect loop caused by authentication error handling
+# Bug-15: Redirect loop caused by authentication error handling
 
 - ### Location:
   frontend/src/utils/api.js
