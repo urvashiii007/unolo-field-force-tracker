@@ -162,21 +162,17 @@ To validate the system’s scalability, we analyze the expected **network** and 
 
 For **10,000 field agents**, each sending a location update every **30 seconds**:
 
-\[
-R_{ps} = \frac{10{,}000\ \text{agents}}{30\ \text{seconds}}
-\;\approx\; 333\ \text{requests per second}
-\]
+
+**Requests per second (Rps)**  
+Rps = 10,000 agents ÷ 30 seconds ≈ **333 requests/second**
 
 
 ## 2. Bandwidth Consumption
 
 Assuming a **standard JSON payload of 512 bytes** per request (including headers):
 
-\[
-\text{Total Bandwidth}
-= 333\ \text{req/s} \times 512\ \text{bytes}
-\;\approx\; 170\ \text{KB/s}
-\]
+**Total Bandwidth**  
+Total Bandwidth = 333 req/s × 512 bytes ≈ **170 KB/s**
 
 
 ### Observation
@@ -194,12 +190,7 @@ Assume:
 
 Each incoming update must be broadcast to all viewers:
 
-\[
-\text{Pushes/s}
-= 333\ \text{updates/s} \times 100\ \text{viewers}
-= 33{,}300\ \text{events/s}
-\]
-
+Pushes per second = 333 updates/s × 100 viewers = **33,300 events/s**
 
 ## 4. Implications on Technology Choice
 
