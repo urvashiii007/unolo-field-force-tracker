@@ -352,3 +352,34 @@ This architecture is **practical today** and **evolvable tomorrow**, making it
 the most realistic and research-backed choice for Unolo’s Field Force Tracker.
 
 
+---
+
+## References
+
+1. **MDN Web Docs – WebSockets API**  
+   https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API  
+   *Referenced to explain persistent connections, bidirectional communication, and scalability implications of WebSockets.*
+
+2. **MDN Web Docs – Server-Sent Events (SSE)**  
+   https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events  
+   *Used to validate SSE behavior, automatic reconnection, and suitability for real-time dashboards.*
+
+3. **Cloudflare – HTTP/2 Overview & Multiplexing**  
+   https://developers.cloudflare.com/http/2/  
+   *Supports claims around HTTP/2 multiplexing, reduced connection overhead, and efficient streaming for SSE-based architectures.*
+
+4. **Android Developers – Optimize Network Use for Battery Life**  
+   https://developer.android.com/topic/performance/power/network  
+   *Used to justify battery efficiency analysis, radio wake-up costs, and why periodic HTTP requests are more power-efficient than persistent sockets on mobile devices.*
+
+5. **Ably Engineering – WebSockets vs Long Polling**  
+   https://ably.com/concepts/websockets-vs-long-polling  
+   *Provides industry-level comparison of real-time communication approaches and their scaling trade-offs.*
+
+6. **Ably Pricing Documentation**  
+   https://ably.com/pricing  
+   *Referenced to estimate real-world costs of managed real-time services at high message volumes (10,000 users with frequent updates).*
+
+7. **DigitalOcean Droplet Pricing**  
+   https://www.digitalocean.com/pricing/droplets  
+   *Used to support cost comparison showing that a self-hosted Node.js + Redis setup can operate under $100/month on commodity infrastructure.*
